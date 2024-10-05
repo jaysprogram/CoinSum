@@ -16,4 +16,6 @@ def coinCounter(filename):
             cv2.putText(image, result.names[int(box.cls)], (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
             coins[int(box.cls)] += 1
 
+    print({'penny': coins[0], 'nickel': coins[1], 'dime': coins[2], 'quarter': coins[3]})
+    
     return {'penny': coins[0], 'nickel': coins[1], 'dime': coins[2], 'quarter': coins[3]}

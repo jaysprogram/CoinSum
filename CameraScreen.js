@@ -1,8 +1,9 @@
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import * as FileSystem from 'expo-file-system';
 
-export default async function CameraScreen() {
+export default function CameraScreen() {
   const [numPennies, setNumPennies] = useState(0);
   const [numNickels, setNumNickels] = useState(0);
   const [numDimes, setNumDimes] = useState(0);
@@ -14,7 +15,13 @@ export default async function CameraScreen() {
 
   // Check if camera permissions are granted
   if (!permission) {
-    return <View />; // If permissions are still loading
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>
+          Loading...
+        </Text>
+      </View>
+    );
   }
   if (!permission.granted) {
     return (
@@ -79,7 +86,7 @@ export default async function CameraScreen() {
         <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
           <Text style={styles.text}>Flip Camera</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={snapPhoto}>
+        <TouchableOpacity style={styles.buttonContainer} onPress={snapPhoto}>
           <Text style={styles.text}>Take Photo</Text>
         </TouchableOpacity>
       </View>
@@ -97,7 +104,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 40,
     left: '30%',
     right: '30%',
     backgroundColor: 'rgba(0,0,0,0.5)',
