@@ -1,50 +1,69 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Camera, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import * as FileSystem from 'expo-file-system';
 
 export default function App() {
-  const [type, setType] = useState(CameraType.back); // CameraType to switch between front/back camera
-  const [cameraRef, setCameraRef] = useState(null); // Reference to the camera
-  const [permission, requestPermission] = useCameraPermissions(); // Handle camera permissions
+  const [facing, setFacing] = useState('back'); // State to manage camera direction
+  const [permission, requestPermission] = useCameraPermissions(); // Camera permission hook
+  const cameraRef = useRef(null); // Reference to CameraView
 
-  // Request permission if not granted
-  useEffect(() => {
-    if (!permission?.granted) {
-      requestPermission();
-    }
-  }, [permission]);
-
-  // If camera permission is loading
-  if (permission === null) {
-    return <View />;
+  // Check if camera permissions are granted
+  if (!permission) {
+    return <View />; // If permissions are still loading
   }
-
-  // If camera permission is denied
   if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
+        <Text style={styles.message}>
+          We need your permission to show the camera
+        </Text>
         <Button onPress={requestPermission} title="Grant Permission" />
       </View>
     );
   }
 
-  // Function to toggle the camera (front/back)
-  const toggleCameraType = () => {
-    setType((current) => 
-      current === CameraType.back ? CameraType.front : CameraType.back
-    );
+  // Function to toggle between front and back camera
+  const toggleCameraFacing = () => {
+    setFacing((current) => (current === 'back' ? 'front' : 'back'));
+  };
+
+  // Function to capture a photo
+  const snapPhoto = async () => {
+    if (cameraRef.current) {
+      console.log('Taking photo...');
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 1, // High-quality image
+        base64: true, // Option to get base64 image
+        exif: true, // Include EXIF data
+      });
+
+      // Save the photo to the app's document directory
+      const fileUri = `${FileSystem.documentDirectory}coins.jpg`;
+      await FileSystem.copyAsync({
+        from: photo.uri,
+        to: fileUri,
+      });
+
+      console.log('Photo saved at:', fileUri); // Log the saved photo URI
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Camera style={styles.camera} type={type} ref={(ref) => setCameraRef(ref)}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraType}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
-        </View>
-      </Camera>
+      <CameraView
+        style={styles.camera}
+        facing={facing}
+        ref={cameraRef} // Attach camera reference
+      />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+          <Text style={styles.text}>Flip Camera</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={snapPhoto}>
+          <Text style={styles.text}>Take Photo</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -53,10 +72,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-  },
-  message: {
-    textAlign: 'center',
-    paddingBottom: 10,
   },
   camera: {
     flex: 1,
@@ -69,6 +84,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     padding: 10,
     borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   button: {
     alignItems: 'center',
