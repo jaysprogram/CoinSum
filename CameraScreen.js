@@ -8,61 +8,83 @@ export default async function CameraScreen() {
   const [numDimes, setNumDimes] = useState(0);
   const [numQuarters, setNumQuarters] = useState(0);
 
-  await fetch('http://10.126.169.124:5000/api/count')
-  .then(res => res.json())
-  .then(data => {
-    setNumPennies(data.penny);
-    setNumNickels(data.nickel);
-    setNumDimes(data.dime);
-    setNumQuarters(data.quarter);
+  const [facing, setFacing] = useState('back'); // State to manage camera direction
+  const [permission, requestPermission] = useCameraPermissions(); // Camera permission hook
+  const cameraRef = useRef(null); // Reference to CameraView
 
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>Pennies: {numPennies}</Text>
-        <Text style={styles.message}>Nickels: {numNickels}</Text>
-        <Text style={styles.message}>Dimes: {numDimes}</Text>
-        <Text style={styles.message}>Quarters: {numQuarters}</Text>
-      </View>
-    );
-  })
-  .catch(error => console.error('Error:', error));
-
-  /*
-  const [facing, setFacing] = useState('back');  // State to manage camera direction
-  const [permission, requestPermission] = useCameraPermissions();  // Camera permission management
-
+  // Check if camera permissions are granted
   if (!permission) {
-    // Camera permissions are still loading.
-    return <View />;
+    return <View />; // If permissions are still loading
   }
-
   if (!permission.granted) {
-    // Camera permissions are not granted yet.
     return (
       <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
+        <Text style={styles.message}>
+          We need your permission to show the camera
+        </Text>
         <Button onPress={requestPermission} title="Grant Permission" />
       </View>
     );
   }
 
-  // Function to toggle camera facing (front/back)
-  function toggleCameraFacing() {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
-  }
+  // Function to toggle between front and back camera
+  const toggleCameraFacing = () => {
+    setFacing((current) => (current === 'back' ? 'front' : 'back'));
+  };
+
+  // Function to capture a photo
+  const snapPhoto = async () => {
+    if (cameraRef.current) {
+      console.log('Taking photo...');
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 1, // High-quality image
+        base64: true, // Option to get base64 image
+        exif: true, // Include EXIF data
+      });
+
+      // Save the photo to the app's document directory
+      const fileUri = `${FileSystem.documentDirectory}coins.jpg`;
+      await FileSystem.copyAsync({
+        from: photo.uri,
+        to: fileUri,
+      });
+
+      console.log('Photo saved at:', fileUri); // Log the saved photo URI
+
+      await fetch('http://10.126.169.124:5000/api/count')
+      .then(res => res.json())
+      .then(data => {
+        setNumPennies(data.penny);
+        setNumNickels(data.nickel);
+        setNumDimes(data.dime);
+        setNumQuarters(data.quarter);
+
+        console.log('Pennies: ' + numPennies);
+        console.log('Nickels: ' + numNickels);
+        console.log('Dimes: ' + numDimes);
+        console.log('Quarters: ' + numQuarters);
+      })
+      .catch(error => console.error('Error:', error));
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
-        </View>
-      </CameraView>
+      <CameraView
+        style={styles.camera}
+        facing={facing}
+        ref={cameraRef} // Attach camera reference
+      />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+          <Text style={styles.text}>Flip Camera</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={snapPhoto}>
+          <Text style={styles.text}>Take Photo</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
-  */
 }
 
 const styles = StyleSheet.create({
@@ -70,27 +92,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  message: {
-    textAlign: 'center',
-    paddingBottom: 10,
-  },
   camera: {
     flex: 1,
   },
   buttonContainer: {
-    flex: 1,
+    position: 'absolute',
+    bottom: 20,
+    left: '30%',
+    right: '30%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 10,
+    borderRadius: 10,
     flexDirection: 'row',
-    backgroundColor: 'transparent',
-    margin: 64,
+    justifyContent: 'space-between',
   },
   button: {
-    flex: 1,
-    alignSelf: 'flex-end',
     alignItems: 'center',
   },
   text: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 18,
     color: 'white',
+    fontWeight: 'bold',
   },
 });
