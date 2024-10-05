@@ -1,8 +1,33 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function App() {
+export default async function CameraScreen() {
+  const [numPennies, setNumPennies] = useState(0);
+  const [numNickels, setNumNickels] = useState(0);
+  const [numDimes, setNumDimes] = useState(0);
+  const [numQuarters, setNumQuarters] = useState(0);
+
+  await fetch('http://10.126.169.124:5000/api/count')
+  .then(res => res.json())
+  .then(data => {
+    setNumPennies(data.penny);
+    setNumNickels(data.nickel);
+    setNumDimes(data.dime);
+    setNumQuarters(data.quarter);
+
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>Pennies: {numPennies}</Text>
+        <Text style={styles.message}>Nickels: {numNickels}</Text>
+        <Text style={styles.message}>Dimes: {numDimes}</Text>
+        <Text style={styles.message}>Quarters: {numQuarters}</Text>
+      </View>
+    );
+  })
+  .catch(error => console.error('Error:', error));
+
+  /*
   const [facing, setFacing] = useState('back');  // State to manage camera direction
   const [permission, requestPermission] = useCameraPermissions();  // Camera permission management
 
@@ -37,6 +62,7 @@ export default function App() {
       </CameraView>
     </View>
   );
+  */
 }
 
 const styles = StyleSheet.create({
