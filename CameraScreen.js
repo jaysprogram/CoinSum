@@ -60,7 +60,7 @@ export default function App() {
         <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
           <Text style={styles.text}>Flip Camera</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={snapPhoto}>
+        <TouchableOpacity style={styles.buttonContainer} onPress={snapPhoto}>
           <Text style={styles.text}>Take Photo</Text>
         </TouchableOpacity>
       </View>
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 50,
     left: '30%',
     right: '30%',
     backgroundColor: 'rgba(0,0,0,0.5)',
