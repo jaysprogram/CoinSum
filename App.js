@@ -19,7 +19,7 @@ function WelcomeScreen({ navigation }) {
         style={styles.loginButton}
         onPress={() => navigation.navigate('Camera')}
       >
-        <Text style={styles.loginText}>Login</Text>
+        <Text style={styles.loginText}>Count Coins</Text>
       </TouchableOpacity>
     </View>
   );
