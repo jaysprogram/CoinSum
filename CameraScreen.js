@@ -31,10 +31,7 @@ export default function CameraScreen({ navigation }) {
     navigation.navigate('Coins', coins); 
   };
 
-  // Function to toggle between front and back camera
-  const toggleCameraFacing = () => {
-    setFacing((current) => (current === 'back' ? 'front' : 'back'));
-  };
+
 
   // Function to capture a photo
   const snapPhoto = async () => {
@@ -103,11 +100,8 @@ export default function CameraScreen({ navigation }) {
         ref={cameraRef} // Attach camera reference
       />
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-          <Text style={styles.text}>Flip Camera</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.buttonContainer} onPress={snapPhoto}>
-          <Text style={styles.text}>Take Photo</Text>
+        <TouchableOpacity onPress={snapPhoto}>
+          <Text style={styles.text}>Scan Coins</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -131,7 +125,8 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   button: {
     alignItems: 'right',
@@ -140,6 +135,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
     fontWeight: 'bold',
+    alignItems: 'center',
   },
   coinCountContainer: {
     position: 'absolute',
