@@ -1,4 +1,4 @@
-flask=3.0.3
-flask_cors=4.0.1
-opencv_python=4.9.0.80
-ultralytics=8.3.1
+flask==3.0.3
+flask_cors==4.0.1
+opencv_python==4.9.0.80
+ultralytics==8.3.1

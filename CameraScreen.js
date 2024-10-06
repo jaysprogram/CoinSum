@@ -59,7 +59,12 @@ export default function CameraScreen() {
       console.log('Photo saved at:', fileUri); // Log the saved photo URI
 
       await fetch('http://10.126.169.124:5000/api/count')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Server error: ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => {
         setNumPennies(data.penny);
         setNumNickels(data.nickel);
