@@ -4,12 +4,6 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
 
 export default function CameraScreen({ navigation }) {
-  const [numPennies, setNumPennies] = useState(0);
-  const [numNickels, setNumNickels] = useState(0);
-  const [numDimes, setNumDimes] = useState(0);
-  const [numQuarters, setNumQuarters] = useState(0);
-  const [coinsCounted, setCoinsCounted] = useState(false);
-
   const [facing, setFacing] = useState('back'); // State to manage camera direction
   const [permission, requestPermission] = useCameraPermissions(); // Camera permission hook
   const cameraRef = useRef(null); // Reference to CameraView
@@ -31,6 +25,10 @@ export default function CameraScreen({ navigation }) {
 
   const setLoadingScreen = () => {
     navigation.navigate('Loading'); 
+  };
+
+  const setCoinsScreen = (coins) => {
+    navigation.navigate('Coins', coins); 
   };
 
   // Function to toggle between front and back camera
@@ -65,7 +63,7 @@ export default function CameraScreen({ navigation }) {
 
   // Function to upload the photo to an API
   const uploadPhoto = async (fileUri) => {
-    const apiUrl = 'http://172.18.96.1:5000/api/count'; // Use your machine's local IP after runiong the Flask API
+    const apiUrl = 'http://10.126.169.124:4000/api/count'; // Use your machine's local IP after runiong the Flask API
 
     // Create a new FormData object to send the photo file
     const formData = new FormData();
@@ -88,13 +86,7 @@ export default function CameraScreen({ navigation }) {
         const result = await response.json();
         console.log('Upload successful!', result);
 
-        // Update the coin count state based on the response
-        setNumPennies(result.penny || 0);
-        setNumNickels(result.nickel || 0);
-        setNumDimes(result.dime || 0);
-        setNumQuarters(result.quarter || 0);
-
-        setCoinsCounted(true);
+        setCoinsScreen(result);
       } else {
         console.error('Upload failed with status:', response.status);
       }
@@ -103,34 +95,23 @@ export default function CameraScreen({ navigation }) {
     }
   };
 
-  if (coinsCounted) {
-    return (
-      <View style={styles.coinCountContainer}>
-        <Text style={styles.coinText}>{numPennies} Pennies = {numPennies}</Text>
-        <Text style={styles.coinText}>{numNickels} Nickels = {numNickels * 5}</Text>
-        <Text style={styles.coinText}>{numDimes} Dimes = {numDimes * 10}</Text>
-        <Text style={styles.coinText}>{numQuarters} Quarters = {numQuarters * 25}</Text>
+  return (
+    <View style={styles.container}>
+      <CameraView
+        style={styles.camera}
+        facing={facing}
+        ref={cameraRef} // Attach camera reference
+      />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+          <Text style={styles.text}>Flip Camera</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonContainer} onPress={snapPhoto}>
+          <Text style={styles.text}>Take Photo</Text>
+        </TouchableOpacity>
       </View>
-    );
-  } else {
-    return (
-      <View style={styles.container}>
-        <CameraView
-          style={styles.camera}
-          facing={facing}
-          ref={cameraRef} // Attach camera reference
-        />
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonContainer} onPress={snapPhoto}>
-            <Text style={styles.text}>Take Photo</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
