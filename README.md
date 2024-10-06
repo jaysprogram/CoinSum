@@ -52,4 +52,5 @@ Run the Flask server:
 - flask run --host=0.0.0.0 --port=4000
 
 Summary
+
 You now have both the frontend and backend running. The frontend should be accessible via the Expo Go app on your mobile device, and the backend is running on port 4000.
