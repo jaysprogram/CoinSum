@@ -8,6 +8,7 @@ export default function CameraScreen() {
   const [numNickels, setNumNickels] = useState(0);
   const [numDimes, setNumDimes] = useState(0);
   const [numQuarters, setNumQuarters] = useState(0);
+  const [coinsCounted, setCoinsCounted] = useState(false);
 
   const [facing, setFacing] = useState('back'); // State to manage camera direction
   const [permission, requestPermission] = useCameraPermissions(); // Camera permission hook
@@ -61,7 +62,6 @@ export default function CameraScreen() {
   const uploadPhoto = async (fileUri) => {
     const apiUrl = 'http://10.126.169.67:4000/api/count'; // Use your machine's IP
 
-
     // Create a new FormData object to send the photo file
     const formData = new FormData();
     formData.append('file', {
@@ -88,6 +88,8 @@ export default function CameraScreen() {
         setNumNickels(result.nickel || 0);
         setNumDimes(result.dime || 0);
         setNumQuarters(result.quarter || 0);
+
+        setCoinsCounted(true);
       } else {
         console.error('Upload failed with status:', response.status);
       }
@@ -96,31 +98,34 @@ export default function CameraScreen() {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <CameraView
-        style={styles.camera}
-        facing={facing}
-        ref={cameraRef} // Attach camera reference
-      />
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-          <Text style={styles.text}>Flip Camera</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={snapPhoto}>
-          <Text style={styles.text}>Take Photo</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Display the coin counts */}
+  if (coinsCounted) {
+    return (
       <View style={styles.coinCountContainer}>
         <Text style={styles.coinText}>Pennies: {numPennies}</Text>
         <Text style={styles.coinText}>Nickels: {numNickels}</Text>
         <Text style={styles.coinText}>Dimes: {numDimes}</Text>
         <Text style={styles.coinText}>Quarters: {numQuarters}</Text>
       </View>
-    </View>
-  );
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <CameraView
+          style={styles.camera}
+          facing={facing}
+          ref={cameraRef} // Attach camera reference
+        />
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+            <Text style={styles.text}>Flip Camera</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.buttonContainer} onPress={snapPhoto}>
+            <Text style={styles.text}>Take Photo</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -159,6 +164,6 @@ const styles = StyleSheet.create({
   },
   coinText: {
     fontSize: 18,
-    color: 'white',
+    color: 'black',
   },
 });
