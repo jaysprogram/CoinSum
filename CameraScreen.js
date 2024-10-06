@@ -15,13 +15,7 @@ export default function CameraScreen() {
 
   // Check if camera permissions are granted
   if (!permission) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>
-          Loading...
-        </Text>
-      </View>
-    );
+    return <View />; // If permissions are still loading
   }
   if (!permission.granted) {
     return (
@@ -58,25 +52,47 @@ export default function CameraScreen() {
 
       console.log('Photo saved at:', fileUri); // Log the saved photo URI
 
-      await fetch('http://10.126.169.124:5000/api/count')
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`Server error: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        setNumPennies(data.penny);
-        setNumNickels(data.nickel);
-        setNumDimes(data.dime);
-        setNumQuarters(data.quarter);
+      // Upload the photo to the Flask API
+      uploadPhoto(fileUri);
+    }
+  };
 
-        console.log('Pennies: ' + numPennies);
-        console.log('Nickels: ' + numNickels);
-        console.log('Dimes: ' + numDimes);
-        console.log('Quarters: ' + numQuarters);
-      })
-      .catch(error => console.error('Error:', error));
+  // Function to upload the photo to an API
+  const uploadPhoto = async (fileUri) => {
+    const apiUrl = 'http://10.126.169.67:4000/api/count'; // Use your machine's IP
+
+
+    // Create a new FormData object to send the photo file
+    const formData = new FormData();
+    formData.append('file', {
+      uri: fileUri,
+      type: 'image/jpeg', // Ensure the type is correct
+      name: 'coins.jpg',  // Name the file
+    });
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data', // Required for sending FormData
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Upload successful!', result);
+
+        // Update the coin count state based on the response
+        setNumPennies(result.penny || 0);
+        setNumNickels(result.nickel || 0);
+        setNumDimes(result.dime || 0);
+        setNumQuarters(result.quarter || 0);
+      } else {
+        console.error('Upload failed with status:', response.status);
+      }
+    } catch (error) {
+      console.error('Error uploading photo:', error);
     }
   };
 
@@ -91,9 +107,17 @@ export default function CameraScreen() {
         <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
           <Text style={styles.text}>Flip Camera</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.buttonContainer} onPress={snapPhoto}>
+        <TouchableOpacity style={styles.button} onPress={snapPhoto}>
           <Text style={styles.text}>Take Photo</Text>
         </TouchableOpacity>
+      </View>
+
+      {/* Display the coin counts */}
+      <View style={styles.coinCountContainer}>
+        <Text style={styles.coinText}>Pennies: {numPennies}</Text>
+        <Text style={styles.coinText}>Nickels: {numNickels}</Text>
+        <Text style={styles.coinText}>Dimes: {numDimes}</Text>
+        <Text style={styles.coinText}>Quarters: {numQuarters}</Text>
       </View>
     </View>
   );
@@ -119,11 +143,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   button: {
-    alignItems: 'center',
+    alignItems: 'right',
   },
   text: {
     fontSize: 18,
     color: 'white',
     fontWeight: 'bold',
+  },
+  coinCountContainer: {
+    position: 'absolute',
+    bottom: 100,
+    left: '10%',
+    right: '10%',
+    alignItems: 'center',
+  },
+  coinText: {
+    fontSize: 18,
+    color: 'white',
   },
 });
