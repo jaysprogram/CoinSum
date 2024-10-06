@@ -10,6 +10,7 @@ Before you begin, ensure you have the following installed on your machine:
 - Python (for the backend)
 - pip (Python Package Installer)
 - Expo Go app (for scanning QR code)
+  
 Getting Started
 Step 1: Set Up the Frontend
 - Open a terminal and navigate to the frontend directory of your application.
