@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import CameraScreen from './CameraScreen';
+import LoadingScreen from './LoadingScreen';
 
 const Stack = createStackNavigator();
 
@@ -35,6 +36,7 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen name="Camera" component={CameraScreen} />
+        <Stack.Screen name="Loading" component={LoadingScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -3,7 +3,7 @@ import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
 
-export default function CameraScreen() {
+export default function CameraScreen({ navigation }) {
   const [numPennies, setNumPennies] = useState(0);
   const [numNickels, setNumNickels] = useState(0);
   const [numDimes, setNumDimes] = useState(0);
@@ -29,6 +29,10 @@ export default function CameraScreen() {
     );
   }
 
+  const setLoadingScreen = () => {
+    navigation.navigate('Loading'); 
+  };
+
   // Function to toggle between front and back camera
   const toggleCameraFacing = () => {
     setFacing((current) => (current === 'back' ? 'front' : 'back'));
@@ -37,6 +41,7 @@ export default function CameraScreen() {
   // Function to capture a photo
   const snapPhoto = async () => {
     if (cameraRef.current) {
+      setLoadingScreen();
       console.log('Taking photo...');
       const photo = await cameraRef.current.takePictureAsync({
         quality: 1, // High-quality image
@@ -101,10 +106,10 @@ export default function CameraScreen() {
   if (coinsCounted) {
     return (
       <View style={styles.coinCountContainer}>
-        <Text style={styles.coinText}>Pennies: {numPennies}</Text>
-        <Text style={styles.coinText}>Nickels: {numNickels}</Text>
-        <Text style={styles.coinText}>Dimes: {numDimes}</Text>
-        <Text style={styles.coinText}>Quarters: {numQuarters}</Text>
+        <Text style={styles.coinText}>{numPennies} Pennies = {numPennies}</Text>
+        <Text style={styles.coinText}>{numNickels} Nickels = {numNickels * 5}</Text>
+        <Text style={styles.coinText}>{numDimes} Dimes = {numDimes * 10}</Text>
+        <Text style={styles.coinText}>{numQuarters} Quarters = {numQuarters * 25}</Text>
       </View>
     );
   } else {
