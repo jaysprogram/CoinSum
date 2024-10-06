@@ -60,7 +60,7 @@ export default function CameraScreen() {
 
   // Function to upload the photo to an API
   const uploadPhoto = async (fileUri) => {
-    const apiUrl = 'http://10.126.169.67:4000/api/count'; // Use your machine's IP
+    const apiUrl = 'http://172.18.96.1:5000/api/count'; // Use your machine's local IP after runiong the Flask API
 
     // Create a new FormData object to send the photo file
     const formData = new FormData();
